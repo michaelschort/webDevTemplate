@@ -1,0 +1,23 @@
+name: deploy-release-online
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+jobs:
+  Minify_Job:
+    runs-on: ubuntu-latest
+    name: Minify_Job
+    steps:
+    - uses: actions/checkout@v2
+    - name: install Minify
+      run: sudo apt-get install minify
+      shell: bash
+    - name: minify
+      run: minify -r -o ./src/ ./src --html-keep-conditional-comments --html-keep-document-tags --html-keep-end-tags --html-keep-default-attrvals
+    - name: FTP-Deploy-Action
+      uses: SamKirkland/FTP-Deploy-Action@4.0.0
+      with:
+        server: ${{ secrets.PRODUCTION_FTP_SERVER }}
+        username: ${{ secrets.PRODUCTION_FTP_USER }}
+        password: ${{ secrets.PRODUCTION_FTP_PASSWORD }}
+        local-dir: ./src/
